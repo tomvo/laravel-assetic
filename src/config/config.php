@@ -6,6 +6,9 @@
  */
 
 return array(
+  'production_environments' => [
+    //Insert the names of the environments you want to exclude from compiling new assets
+  ],
   /*
    * Groups are named settings containing assets and filters,
    * plus an output file.

@@ -18,6 +18,7 @@ use Assetic\Filter\FilterInterface;
 use Assetic\FilterManager;
 use Config;
 use URL;
+use App;
 
 /**
  * Provides a front-end for Assetic collections.
@@ -60,9 +61,11 @@ class Asset {
       $coll->setTargetPath($output);
     }
 
+    $productionEnvironments = Config::get($this->namespace . '::production_environments', []);
+
     // check output cache
     $write_output = true;
-    if (!$overwrite && App::environment() != 'production') {
+    if (!$overwrite && !in_array(App::environment(), $productionEnvironments)) {
       if (file_exists($output = public_path($coll->getTargetPath()))) {
         $output_mtime = filemtime($output);
         $asset_mtime = $coll->getLastModified();
@@ -96,33 +99,11 @@ class Asset {
    * Generate the URL for a given asset group.
    *
    * @param $name
-   * @param array $options options:
-   *    secure => bool,
-   *    md5    => bool
    * @return string
    */
-  public function url($name, array $options = null) {
-    $options = is_null($options) ? array() : $options;
+  public function url($name) {
     $group = $this->createGroup($name);
-
-    $cache_buster = '';
-    if (array_get($options, 'md5', false)) {
-      $cache_buster = '?' . md5_file($this->file($name));
-    }
-
-    $secure = array_get($options, 'secure', false);
-    return URL::asset($group->getTargetPath(), $secure) . $cache_buster;
-  }
-
-  /**
-   * Get the output filename for an asset group.
-   * 
-   * @param $name
-   * @return string
-   */
-  public function file($name) {
-    $group = $this->createGroup($name);
-    return public_path($group->getTargetPath()));
+    return URL::asset($group->getTargetPath());
   }
 
   /**
