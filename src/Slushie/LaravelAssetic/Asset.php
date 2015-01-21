@@ -62,7 +62,7 @@ class Asset {
 
     // check output cache
     $write_output = true;
-    if (!$overwrite) {
+    if (!$overwrite && App::environment() != 'production') {
       if (file_exists($output = public_path($coll->getTargetPath()))) {
         $output_mtime = filemtime($output);
         $asset_mtime = $coll->getLastModified();
